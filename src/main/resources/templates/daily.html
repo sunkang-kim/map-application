@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>공지사항</title>
+    <link rel="stylesheet" href="http://localhost:8080/css/css.css">
+</head>
+<body>
+<div class="board_wrap">
+    <div class="board_title">
+        <strong>공지사항</strong>
+        <p>공지사항을 빠르고 정확하게 안내해드립니다.</p>
+    </div>
+    <div class="board_list_wrap">
+        <div class="board_list">
+            <div class="top">
+                <div class="num">여행명</div>
+                <div class="title">제목</div>
+                <div class="date">여행 날짜</div>
+                <div class="count">삭제</div>
+            </div>
+            <div th:each="schedule : ${dailySchedules}">
+                <a th:href="@{'http://localhost:8080/places/' + ${schedule.id}}">
+                    <div class="num" th:text="${title}"></div>
+                    <div class="title" th:text="${schedule.title}"></div>
+                    <div class="date" th:text="${schedule.date}"></div>
+                </a>
+                <div class="count">삭제</div>
+            </div>
+        </div>
+        <div class="board_page">
+            <a href="#" class="bt first"><<</a>
+            <a href="#" class="bt prev"><</a>
+            <a href="#" class="num on">1</a>
+            <a href="#" class="num">2</a>
+            <a href="#" class="num">3</a>
+            <a href="#" class="num">4</a>
+            <a href="#" class="num">5</a>
+            <a href="#" class="bt next">></a>
+            <a href="#" class="bt last">>></a>
+        </div>
+        <div class="bt_wrap">
+            <a href="#" class="on">등록</a>
+            <!--<a href="#">수정</a>-->
+        </div>
+    </div>
+</div>
+</body>
+</html> 

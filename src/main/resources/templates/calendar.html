@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="http://localhost:8080/js/calendar.js"></script>
+    <link rel="stylesheet" href="http://localhost:8080/css/calendar.css">
+    <!-- fullcalendar 라이브러리 -->
+    <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.7/index.global.min.js'></script>
+    <!-- jQuery 라이브러리 -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- bootstrap 4 -->
+    <!-- 부트스트랩 4 스타일시트 -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+    <!-- 부트스트랩 4 자바스크립트 파일 -->
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+    <!-- fullcalendar -->
+    <!-- fullcalendar 라이브러리 스타일시트 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.0/main.min.css">
+    <!-- fullcalendar 라이브러리 자바스크립트 파일 -->
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/fullcalendar@5.7.0/main.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script th:inline="javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            const t = 'T00:00:01'
+            /*<![CDATA[*/
+            const tripSchedules = [[${tripSchedules}]];
+            /*]]>*/
+            const convertedData = tripSchedules.map(item => {
+                return {
+                    title: item.title,
+                    start: item.startDate,
+                    end: item.endDate + t,
+                    id: item.id
+                };
+            });
+            const calendarEl = document.getElementById('calendar');
+            const calendar = new FullCalendar.Calendar(calendarEl, {
+                timeZone: 'UTC',
+                initialView: 'dayGridMonth', // 홈페이지에서 다른 형태의 view를 확인할  수 있다.
+                editable: false, // false로 변경 시 draggable 작동 x
+                locale: 'ko', //한국어
+                selectable: true, //드래그해서 선택가능
+                displayEventTime: false, // 시간 표시 x
+                events: convertedData,
+                headerToolbar: {
+                    center: 'addEventButton' // headerToolbar에 버튼을 추가
+                },
+                customButtons: {
+                    addEventButton: { // 추가한 버튼 설정
+                        text: "일정 추가",  // 버튼 내용
+                        click: function () { // 버튼 클릭 시 이벤트 추가
+                            $("#calendarModal").modal("show"); // modal 나타내기
+
+                            $("#addCalendar").on("click", function () {  // modal의 추가 버튼 클릭 시
+                                const content = $("#calendar_content").val(); //#calendar_content의 value값
+                                const startDate = $("#calendar_start_date").val(); //#calendar_start_date의 value값
+                                const endDate = $("#calendar_end_date").val(); //#calendarr_end_date의 value값
+
+                                //내용 입력 여부 확인
+                                if (content == null || content == "") {
+                                    alert("내용을 입력하세요.");
+                                } else if (startDate == "" || endDate == "") {
+                                    alert("날짜를 입력하세요.");
+                                } else if (new Date(startDate) - new Date(endDate) > 0) { // date 타입으로 변경 후 확인
+                                    alert("종료일이 시작일보다 먼저입니다.");
+                                } else { // 정상 입력 시
+                                    $("#calendarModal").modal("hide");
+                                }
+                            });
+                        }
+                    }
+                },
+
+                //일정 클릭시 일일 일정 페이지로 넘어감
+                eventClick: function (info) {
+                    const event = calendar.getEventById(info.event.id); // 이벤트 가져오기 (getEventById = 해당 id를 가진 일정을 검색하여 반환)
+                    window.open(`http://localhost:8080/schedules/${event.id}/daily`, "_self"); // 현재창에서 링크열기
+
+                },
+                eventDidMount: function (info) { //FullCalendar 각 이벤트 요소가 렌더링된 후 호출되는 콜백 함수, info 매개변수는 이벤트에 대한 정보를 담고 있음
+                    info.el.style.borderColor = '#fff';
+                    const color = getNextColor(info.event.id); // 스케줄 ID를 기반으로 다음 색상 가져오기
+                    setEventBackgroundColors(info.el, color); // 이벤트 요소의 배경색을 설정하는 함수 호출
+
+                    info.el.addEventListener('contextmenu', function (e) { // 우클릭 이벤트(contextmenu) 등록
+                        e.preventDefault(); // 기본 우클릭 동작 취소
+                        const event = calendar.getEventById(info.event.id); // 이벤트 가져오기 (getEventById = 해당 id를 가진 일정을 검색하여 반환)
+
+                        const title = info.event.title;
+                        const startD = info.event.start;
+                        const endD = info.event.end;
+
+                        const startDay = moment(startD).format('YYYY-MM-DD');
+                        const endDay = moment(endD).format('YYYY-MM-DD');
+
+                        // 동적으로 form 태그 생성
+                        const form = document.createElement('form');
+                        form.action = `http://localhost:8080/schedule/update/${event.id}`;
+                        form.method = 'POST';
+
+                        const formContent = `
+                        <div class="modal-body">
+                            <div class="form-group">
+                                <label for="modify_content" class="col-form-label">일정 내용</label>
+                                <input type="text" class="form-control" id="modify_content" name="title">
+                                <label for="modify_start_date" class="col-form-label">시작 날짜</label>
+                                <input type="date" class="form-control" id="modify_start_date" name="startDate">
+                                <label for="modify_end_date" class="col-form-label">종료 날짜</label>
+                                <input type="date" class="form-control" id="modify_end_date" name="endDate">
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-warning" id="modifyComplete">수정완료</button>
+                        </div>
+                        `;
+
+                        form.innerHTML = formContent;
+                        document.querySelector('.modal-bodys').innerHTML = ''; // 기존 form 태그 삭제(초기화)
+                        document.querySelector('.modal-bodys').appendChild(form); // 새로운 form 태그 추가
+
+                        $('input[id=modify_content]').val(title);
+                        $('input[id=modify_start_date]').val(startDay);
+                        $('input[id=modify_end_date]').val(endDay);
+                        $("#modiModal").modal("show");
+
+                        // submit 이벤트 핸들러
+                        form.addEventListener('submit', function (e) {
+                            e.preventDefault();
+
+                            const modifiedTitle = $('input[id=modify_content]').val();
+                            const modifiedStartDate = $('input[id=modify_start_date]').val();
+                            const modifiedEndDate = $('input[id=modify_end_date]').val();
+
+                            // 내용 입력 여부 확인
+                            if (modifiedTitle == null || modifiedTitle == "") {
+                                alert("내용을 입력하세요.");
+                            } else if (modifiedStartDate == "" || modifiedEndDate == "") {
+                                alert("날짜를 입력하세요.");
+                            } else if (new Date(modifiedEndDate) - new Date(modifiedStartDate) < 0) {
+                                alert("종료일이 시작일보다 먼저입니다.");
+                            } else {
+                                // 변경된 정보 업데이트(일정 수정시)
+                                info.event.setProp('title', modifiedTitle);
+                                info.event.setStart(modifiedStartDate);
+                                info.event.setEnd(modifiedEndDate);
+
+                                form.submit();
+
+                                // 모달 창 닫기
+                                $("#readModal").modal("hide");
+                            }
+                            // 우클릭한 일정 정보 출력
+                            console.log('우클릭한 일정');
+                            console.log('제목:', modifiedTitle);
+                            console.log('시작일:', modifiedStartDate);
+                            console.log('종료일:', modifiedEndDate);
+                            console.log('전체일정 id', event.id);
+                        })
+                    });
+                },
+            });
+            let scheduleColors = {}; // 스케줄 ID와 색상을 저장하기 위한 객체
+            let colorIndex = 0;
+
+            function getNextColor(scheduleId) {
+                if (scheduleColors[scheduleId]) {
+                    return scheduleColors[scheduleId]; // 이미 할당된 색상이 있는 경우 해당 색상 반환
+                }
+
+                const colors = ["#00D8FF", "#1DDB16", "#FF007F", "#FFA7A7", "#5F00FF", "#990085", "#F2CB61", "#D941C5", "#BCE55C", "#993800"];
+                const color = colors[colorIndex]; // 변수: 다음에 할당될 색상을 지정하기 위한 인덱스
+                scheduleColors[scheduleId] = color; // 새로운 스케줄에 색상 할당
+                colorIndex = (colorIndex + 1) % colors.length;
+                return color;
+            }
+
+            function setEventBackgroundColors(el, color) {
+                el.style.backgroundColor = color;
+            }
+            calendar.render();
+        });
+    </script>
+    <title>일정</title>
+</head>
+
+<body>
+<div id="calendarBox">
+    <div id="calendar"></div>
+</div>
+
+<!-- modal 창(일정추가) -->
+<div class="modal fade" id="calendarModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">일정을 입력하세요.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form action="http://localhost:8080/schedules" method="post">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="calendar_content" class="col-form-label">일정 내용</label>
+                        <input type="text" class="form-control" id="calendar_content" name="title">
+                        <label for="calendar_start_date" class="col-form-label">시작 날짜</label>
+                        <input type="date" class="form-control" id="calendar_start_date" name="startDate">
+                        <label for="calendar_end_date" class="col-form-label">종료 날짜</label>
+                        <input type="date" class="form-control" id="calendar_end_date" name="endDate">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-warning" id="addCalendar">추가</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal" id="sprintSettingModalClose">
+                        취소
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="modiModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">일정을 수정 해주세요.</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-bodys">
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+</body>
+
+</html>

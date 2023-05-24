@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Place List</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+<h1>Place List</h1>
+<table>
+    <tr>
+        <th>Place ID</th>
+        <th>Latitude</th>
+        <th>Longitude</th>
+        <th>Name</th>
+        <th>Rating</th>
+        <th>Phone Number</th>
+    </tr>
+    <!-- 장소 목록을 반복하여 행을 생성 -->
+    <tr th:each="place : ${places}">
+        <td th:text="${place.placeId}"></td>
+        <td th:text="${place.latitude}"></td>
+        <td th:text="${place.longitude}"></td>
+        <td th:text="${place.name}"></td>
+        <td th:text="${place.rating}"></td>
+        <td th:text="${place.phoneNumber}"></td>
+    </tr>
+</table>
+</body>
+</html>

@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Join</title>
+    <!-- css -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reset-css@5.0.0/reset.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- jquery cdn -->
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <form action="/member/join" method="post">
+        이메일 : <input type="text" name="memberEmail" id="memberEmail" onblur="emailCheck()" /><br>
+        <p id="check-result"></p>
+        이름 : <input type="text" name="memberName" /><br>
+        비밀번호 : <input type="password" name="memberPassword" /><br>
+        <input type="submit" value="회원가입" />
+    </form>
+</body>
+    <script th:line="javascript">
+        const emailCheck = () => {
+            const email = document.getElementById("memberEmail").value;
+            const checkResult = document.getElementById("check-result");
+            console.log("입력값 : ", email);
+
+            $.ajax({
+                type: "post",
+                url: "/member/email-check",
+                data: {
+                    "memberEmail": email
+                },
+                success: function(res) {
+                    console.log("요청성공", res);
+
+                    if(res == "ok") {
+                        console.log("이메일 사용가능");
+                        checkResult.style.margin = "10px 0 20px";
+                        checkResult.style.color = "green";
+                        checkResult.innerHTML = "이메일 사용가능";
+                    } else {
+                        console.log("이메일 사용불가능");
+                        checkResult.style.margin = "10px 0 20px";
+                        checkResult.style.color = "red";
+                        checkResult.innerHTML = "이메일 사용불가능";
+                    }
+                },
+                error: function(err) {
+                    console.log("에러발생", err);
+                }
+            });
+        }
+    </script>
+</html>
