@@ -21,7 +21,7 @@
       <!-- calender content -->
       <form id="calender_content" th:action="@{/places/save/{parentId}(parentId=${parentId})}" method="post">
         <input type="hidden" name="parentId" id="parentId" th:value="${parentId}" readonly />
-        <div class="content_list">
+        <div class="content_list h_option">
           <div class="scheduleList" th:each="schedule : ${dailySchedules}">
               <a class="dailySchedules" th:href="@{'http://localhost:8080/places/' + ${schedule.id}}">
                 <div class="title" th:text="${schedule.title}"></div>

@@ -559,8 +559,8 @@ document.addEventListener("DOMContentLoaded", function() {
       var latValue = latElement ? latElement.value : null;
       var lngValue = lngElement ? lngElement.value : null;
       // 원하는 동작 수행
-      console.log('lat:', latValue);
-      console.log('lng:', lngValue);
+      // console.log('lat:', latValue);
+      // console.log('lng:', lngValue);
       const markerCenter = new google.maps.LatLng(latValue, lngValue); // daily일정의 첫 장소의 lat,lng를 markerCenter에 저장
       map.setCenter(markerCenter) // 페이지 로딩시 map의 중앙을 첫 마커 중심으로 설정
     }
