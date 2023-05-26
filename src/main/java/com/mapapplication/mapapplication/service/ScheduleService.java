@@ -34,11 +34,12 @@ public class ScheduleService {
     }
 
     // TripSchedule 생성
-    public TripSchedule createTripSchedule(String title, LocalDate startDate, LocalDate endDate) {
+    public TripSchedule createTripSchedule(String title, LocalDate startDate, LocalDate endDate, Long userId) {
         TripSchedule tripSchedule = new TripSchedule();
         tripSchedule.setTitle(title);
         tripSchedule.setStartDate(startDate);
         tripSchedule.setEndDate(endDate);
+        tripSchedule.setUserId(userId);
 
         //하위 테이블인 TripDailySchedule은 트리거에서 자동생성
 

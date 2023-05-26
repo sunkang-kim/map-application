@@ -145,7 +145,7 @@ function saveData() {
     const parentId = document.getElementById("parentId").value;
     console.log(placeItems)
     // AJAX 요청 보내기
-    fetch('/places/save/' + parentId, {
+    fetch('/places/' + parentId, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

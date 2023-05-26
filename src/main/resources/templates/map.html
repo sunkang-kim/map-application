@@ -6,10 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Map Application</title>
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    <link rel="stylesheet" type="text/css" href="http://localhost:8080/css/map.css" />
+    <link rel="stylesheet" type="text/css" href="/css/map.css" />
     <script src="http://code.jquery.com/jquery-latest.min.js"></script>
-    <script src="http://localhost:8080/js/map.js"></script>
-    <script src="http://localhost:8080/js/sidebar.js"></script>
+    <script src="/js/map.js"></script>
+    <script src="/js/sidebar.js"></script>
   </head>
   <body>
     <!-- calender -->
@@ -19,7 +19,7 @@
         <span th:text="${daily.title}"></span>
       </div>
       <!-- calender content -->
-      <form id="calender_content" th:action="@{/places/save/{parentId}(parentId=${parentId})}" method="post">
+      <form id="calender_content" th:action="@{/places/{parentId}(parentId=${parentId})}" method="post">
         <input type="hidden" name="parentId" id="parentId" th:value="${parentId}" readonly />
         <div class="content_list">
           <ul id="place_list">

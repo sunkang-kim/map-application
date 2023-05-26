@@ -14,5 +14,7 @@ public interface ScheduleRepository extends JpaRepository<TripSchedule, Long> {
     List<TripSchedule> findAll();
     @Query("SELECT tds FROM TripDailySchedule tds WHERE tds.parent.id = :parentId")
     List<TripDailySchedule> findByParentId(@Param("parentId") Long parentId);
+
+    List<TripSchedule> findByUserId(Long userId);
 }
 

@@ -19,14 +19,13 @@ public class MemberController {
     // 회원가입
     @GetMapping("/join")
     public String joinForm() {
-        return "/member/join";
+        return "join";
     }
 
     @PostMapping("/join")
     public String join(@ModelAttribute MemberDto memberDTO) {
-        System.out.println("진입");
         memberService.join(memberDTO);
-        return "";
+        return "login";
     }
 
     // 회원정보 삭제
@@ -39,7 +38,7 @@ public class MemberController {
     // 로그인
     @GetMapping("/login")
     public String loginForm() {
-        return "/member/login";
+        return "calendar";
     }
 
     @PostMapping("/login")
@@ -49,7 +48,8 @@ public class MemberController {
         if(loginResult != null) {
             // 로그인 성공
             session.setAttribute("loginEmail", loginResult.getMemberEmail());
-            return "main";
+            session.setAttribute("userId", loginResult.getId());
+            return "redirect:/schedules";
         } else {
             // 로그인 실패
             return "/member/login";
